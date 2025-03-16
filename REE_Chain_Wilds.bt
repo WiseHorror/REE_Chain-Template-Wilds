@@ -13,10 +13,10 @@
 LittleEndian();
 
 local int i <hidden=true>, j <hidden=true>, k <hidden=true>, m <hidden=true>;
-local int settingSz <hidden=true> = 160;
-local int chainGrpSz <hidden=true> = 80;
+local int settingSz <hidden=true> = 184;  // Updated for MHWilds
+local int chainGrpSz <hidden=true> = 104;
 local int colSz <hidden=true> = 80;
-local int nodeSz <hidden=true> = 80;
+local int nodeSz <hidden=true> = 96;
 local uint nodeTotal <hidden=true>;
 
 uint Version <name="Chain Version (Change Version Here)", write=WriteVersion>; // The true chain version
@@ -24,10 +24,17 @@ local uint version <hidden=false> = Version; //the internal chain version for mo
 
 FSeek(0);
 
+if (version >= 13) {
+    settingSz = 184;  // Updated for MHWilds
+    chainGrpSz = 104;
+    nodeSz = 96;
+}
+
 if (version >= 52) {
     settingSz = 176;
     chainGrpSz = 120;
 }
+
 
 if (version == 48) {
     settingSz = 168;
@@ -888,6 +895,8 @@ struct ChainData {
     StringOffset extraData;
     uint64 groupTbl;
     uint64 linkTbl;
+    if (version >= 13)  // New field for MHWilds
+        uint64 extraDataOffset;
     if (version >= 53)
         uint64 uknTbl;
     uint64 settingTbl;
@@ -1023,6 +1032,10 @@ typedef struct {
             float ukn4;
         }
     }
+    if (version >= 13) {  // MHWilds new params
+        float unknownParam1;
+        float unknownParam2;
+    }
     /*if (version >= 48) {
         float ukn2;
         float ukn3;
@@ -1067,7 +1080,7 @@ if (Header.modelCollisionTbl && Header.modelCollisionCount)
             float lerp;
             if (version >= 48)
                 float ukn;
-            if (version != 5) {
+            if (version != 5 && Header.settingCount > 0) {
                 enum <byte> ChainCollisionShape {
                     ChainCollisionShape_None = 0x0,
                     ChainCollisionShape_Sphere = 0x1,
@@ -1221,6 +1234,11 @@ struct ChainGroupData {
         float ukn;
         Float3 ukn2;
     }
+    if (version >= 13) {  // New fields for MHWilds
+        uint64 unknownOffset;
+        float unknownParam1;
+        float unknownParam2;
+    }
     
     if (Version >= 48) {
         BoneHashes unknownBoneHash;
@@ -1278,7 +1296,7 @@ if (Header.groupTbl && Header.groupCount)
 string ReadChainGroup(ChainGroupData &c) { return c.terminalNodeName.name; }
 
 struct WindSetting {
-    if (version != 5) {
+    if (version != 5 && Header.settingCount > 0) {
         uint id;
         for(j = 0; j < Header.settingCount; j++) {
             if (ReadUByte(Header.settingTbl + j * settingSz + 31) == id) {
@@ -1375,6 +1393,9 @@ struct ChainLinkData {
         AttrFlags_EnableStretch = 0x1,
     } linkAttrFlags;
     char nodeTblCount;
+    if (version >= 13) {  // MHWilds new fields
+        uint extraDataOffset;
+    }
     char skipGroupA;
     char skipGroupB;
     RotationOrder linkOrder;
