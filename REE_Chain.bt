@@ -24,7 +24,7 @@ local uint version <hidden=false> = Version; //the internal chain version for mo
 
 FSeek(0);
 
-if (version >= 13) {
+if (version == 13) {
     settingSz = 184;  // Updated for MHWilds
     chainGrpSz = 104;
     nodeSz = 96;
@@ -895,7 +895,7 @@ struct ChainData {
     StringOffset extraData;
     uint64 groupTbl;
     uint64 linkTbl;
-    if (version >= 13)  // New field for MHWilds
+    if (version == 13)  // New field for MHWilds
         uint64 extraDataOffset;
     if (version >= 53)
         uint64 uknTbl;
@@ -1032,7 +1032,7 @@ typedef struct {
             float ukn4;
         }
     }
-    if (version >= 13) {  // MHWilds new params
+    if (version == 13) {  // MHWilds new params
         float unknownParam1;
         float unknownParam2;
     }
@@ -1234,7 +1234,7 @@ struct ChainGroupData {
         float ukn;
         Float3 ukn2;
     }
-    if (version >= 13) {  // New fields for MHWilds
+    if (version == 13) {  // New fields for MHWilds
         uint64 unknownOffset;
         float unknownParam1;
         float unknownParam2;
@@ -1393,7 +1393,7 @@ struct ChainLinkData {
         AttrFlags_EnableStretch = 0x1,
     } linkAttrFlags;
     char nodeTblCount;
-    if (version >= 13) {  // MHWilds new fields
+    if (version == 13) {  // MHWilds new fields
         uint extraDataOffset;
     }
     char skipGroupA;
